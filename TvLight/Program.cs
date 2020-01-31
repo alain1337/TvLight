@@ -22,7 +22,7 @@ namespace TvLight
                 throw new Exception("Exactly one Hue Bridge must be defines in devices.json");
             foreach (var device in db.Devices)
                 device.GetStatus();
-            var hue = db.Devices.First(d => d.Type == DeviceType.HueBridge) as HueBridge;
+            var hue = (HueBridge)db.Devices.First(d => d.Type == DeviceType.HueBridge);
             Console.WriteLine("Bridge:");
             Console.WriteLine($"\t{hue.Name,-30}\t{hue.Ip.Ip}\t{hue.GetStatus()}");
             if (hue.Ip.Status != IpDeviceStatus.Online)
