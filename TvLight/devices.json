@@ -14,7 +14,8 @@
     {
       "name": "Wohnzimmer",
       "mac": "00-05-CD-25-00-81",
-      "type": "Tv"
+      "type": "Tv",
+      "controls": []
     }
   ] 
 }
