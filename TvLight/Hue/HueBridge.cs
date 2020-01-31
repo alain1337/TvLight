@@ -7,10 +7,13 @@ using TvLight.Pinger;
 
 namespace TvLight.Hue
 {
-    public class HueBridge : Device
+    public class HueBridge
     {
-        public HueBridge(string name, PhysicalAddress mac) : base(name, mac)
+        public Device Device { get; }
+
+        public HueBridge(Device device)
         {
+            Device = device;
         }
     }
 }

@@ -4,14 +4,13 @@ using System.Net.NetworkInformation;
 
 namespace TvLight.Pinger
 {
-    [DebuggerDisplay("{Name} {Ip} {Status}")]
+    [DebuggerDisplay("{Ip} {Status}")]
 
     public class IpDevice
     {
         public IPAddress Ip { get; }
         public PhysicalAddress Mac { get; }
         public IpDeviceStatus Status { get; internal set; }
-        public string Name => Program.KnownMacs.ContainsKey(Mac) ? Program.KnownMacs[Mac] : Mac.ToString();
 
         public IpDevice(IPAddress ip, PhysicalAddress mac)
         {

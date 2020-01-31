@@ -8,12 +8,14 @@ namespace TvLight.Devices
 {
     public class Device
     {
+        public DeviceType Type { get; }
         public string Name { get; }
         public PhysicalAddress Mac { get; }
         public IpDevice Ip { get; private set; }
 
-        public Device(string name, PhysicalAddress mac)
+        public Device(DeviceType type, string name, PhysicalAddress mac)
         {
+            Type = type;
             Name = name;
             Mac = mac;
         }
@@ -30,5 +32,11 @@ namespace TvLight.Devices
             Ip = new IpDevice(ip, Mac);
             return Ip.CheckOnline();
         }
+    }
+
+    public enum DeviceType
+    {
+        HueBridge,
+        Tv
     }
 }
