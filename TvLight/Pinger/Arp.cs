@@ -37,16 +37,6 @@ namespace TvLight.Pinger
 
             return result;
         }
-
-        public static void PingSubnet(IPAddress subnet, IPAddress mask)
-        {
-            // NOTE: This is extremely lame but works for now...
-            var baseIp = String.Join('.', subnet.ToString().Split('.').Take(3)) + ".";
-            var pings = Enumerable.Range(1, 254)
-                .Select(i => new Ping().SendPingAsync(baseIp + i, 200))
-                .ToList();
-            Thread.Sleep(200);
-        }
     }
 
     public class ArpEntry : IpDevice

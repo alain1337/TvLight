@@ -30,7 +30,9 @@ namespace TvLight.Pinger
         {
             if (_arpUpdated.HasValue && _arpUpdated > DateTime.Now.Add(-_refreshAfter))
                 return;
-            Arp.PingSubnet(SubnetAddress, SubnetMask);
+            var pinger = new Pinger(SubnetAddress);
+            var result = pinger.PingAllAsync().Result;
+            //Console.WriteLine($"\tPinged {result.IpsPinged} in {result.Elapsed}, {result.IpsSuccessful} online");
             _arpEntries = Arp.GetAll();
             _arpUpdated = DateTime.Now;
         }
