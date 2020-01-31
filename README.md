@@ -1,5 +1,7 @@
 # TvLight
-TvLight allows to monitor the IPs of TVs and turn on or off Hue lights when the TV is on.
+TvLight allows to monitor the IPs of TVs and turn on or off Hue lights when the TV is on. TvLight is intended to run all the time, ideally on a low-power device such as a Rasberry Pi.
+
+Devices are configurable and are identified by their MAC address:
 
 ```javascript
 {
@@ -22,3 +24,4 @@ TvLight allows to monitor the IPs of TVs and turn on or off Hue lights when the 
   ] 
 }
 ```
+While TvLight is limited to a single subnet, it can easily and automatically handle IP changes.
