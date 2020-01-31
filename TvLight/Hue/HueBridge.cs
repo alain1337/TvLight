@@ -28,11 +28,14 @@ namespace TvLight.Hue
             return lights;
         }
 
-        JsonDocument TransactCommand(HttpMethod method, string url, string bodyJson = null)
+        internal JsonDocument TransactCommand(HttpMethod method, string url, string bodyJson = null)
         {
+            var requestUri = ApiRoot + url;
             string result;
             if (method == HttpMethod.Get)
-                result = _httpClient.GetStringAsync(ApiRoot + url).Result;
+                result = _httpClient.GetStringAsync(requestUri).Result;
+            else if (method == HttpMethod.Put)
+                result = _httpClient.PutAsync(requestUri, new StringContent(bodyJson)).Result.Content.ReadAsStringAsync().Result;
             else
                 throw new Exception("Unsupported method: " + method);
             return JsonDocument.Parse(result);

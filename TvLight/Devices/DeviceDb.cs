@@ -27,7 +27,7 @@ namespace TvLight.Devices
                         Devices.Add(new HueBridge(name, mac));
                         break;
                     case "Tv":
-                        Devices.Add(new Device(DeviceType.Tv, name, mac));
+                        Devices.Add(new Tv(name, mac, deviceJson));
                         break;
                     default:
                         throw new Exception("Unknown device type: " + type);

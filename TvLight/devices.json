@@ -9,7 +9,7 @@
       "name": "Schlafzimmer",
       "mac": "20-3D-BD-F0-DC-60",
       "type": "Tv",
-      "control": "Lampe Büro"
+      "controls": [ "TV Schlafzimmer Links", "TV Schlafzimmer Rechts" ]
     },
     {
       "name": "Wohnzimmer",

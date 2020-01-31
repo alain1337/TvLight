@@ -39,14 +39,31 @@ namespace TvLight
             Console.WriteLine();
 
             Console.WriteLine("TVs:");
-            var tvs = db.Devices.Where(d => d.Type == DeviceType.Tv).ToList();
+            var tvs = db.Devices.Where(d => d.Type == DeviceType.Tv).Cast<Tv>().ToList();
             foreach (var tv in tvs)
-                Console.WriteLine($"\t{tv.Name,-30}\t{tv.Ip?.Ip.ToString() ?? "n/a"}\t{tv.GetStatus()}");
+                Console.WriteLine($"\t{tv.Name,-30}\t{tv.Ip?.Ip.ToString() ?? "n/a"}\t{tv.GetStatus()}\t{String.Join(',', tv.Controls)}");
             Console.WriteLine();
 
             Console.WriteLine("Starting DeviceMonitor, [Enter] to stop");
             var monitor = new DeviceMonitor(tvs);
-            monitor.DeviceChanged += (sender, data) => { Console.WriteLine($"\t{DateTime.Now:T}\t{data.Device.Name}\t{data.PreviousStatus}\t->\t{data.CurrentStatus}"); };
+            monitor.DeviceChanged += (sender, data) =>
+                {
+                    Console.WriteLine($"\t{DateTime.Now:T}\t{data.Device.Name}\t{data.PreviousStatus}\t->\t{data.CurrentStatus}");
+                    if (data.Device is Tv tv)
+                    {
+                        switch (data.CurrentStatus)
+                        {
+                            case IpDeviceStatus.Online:
+                                foreach (var light in tv.Controls)
+                                    lights.FirstOrDefault(l => l.Name == light)?.TurnOn();
+                                break;
+                            case IpDeviceStatus.Offline:
+                                foreach (var light in tv.Controls)
+                                    lights.FirstOrDefault(l => l.Name == light)?.TurnOff();
+                                break;
+                        }
+                    }
+                };
             monitor.Start();
 
             Console.ReadLine();
