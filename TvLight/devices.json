@@ -8,7 +8,8 @@
     {
       "name": "Schlafzimmer",
       "mac": "20-3D-BD-F0-DC-60",
-      "type": "Tv"
+      "type": "Tv",
+      "control": "Lampe Büro"
     },
     {
       "name": "Wohnzimmer",
