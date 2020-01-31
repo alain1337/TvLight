@@ -9,6 +9,7 @@ using TvLight.Classes;
 using TvLight.Devices;
 using TvLight.Hue;
 using TvLight.Pinger;
+using TvLight.Monitor;
 
 namespace TvLight
 {
@@ -30,9 +31,19 @@ namespace TvLight
             Console.WriteLine();
 
             Console.WriteLine("TVs:");
-            foreach (var tv in db.Devices.Where(d => d.Type == DeviceType.Tv))
+            var tvs = db.Devices.Where(d => d.Type == DeviceType.Tv).ToList();
+            foreach (var tv in tvs)
                 Console.WriteLine($"\t{tv.Name}\t{tv.GetStatus()}");
             Console.WriteLine();
+
+            Console.WriteLine("Starting DeviceMonitor:");
+            var monitor = new DeviceMonitor(tvs);
+            monitor.DeviceChanged += (sender, data) => { Console.WriteLine($"\t{DateTime.Now:T}\t{data.Device.Name}\t{data.PreviousStatus}\t->\t{data.CurrentStatus}"); };
+            monitor.Start();
+
+            Console.ReadLine();
+            Console.WriteLine("Stopping DeviceMonitor");
+            monitor.Stop();
         }
     }
 }
