@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TvLight.Pinger
@@ -41,12 +42,10 @@ namespace TvLight.Pinger
         {
             // NOTE: This is extremely lame but works for now...
             var baseIp = String.Join('.', subnet.ToString().Split('.').Take(3)) + ".";
-            Parallel.For(1, 256, i =>
-            {
-                var address = baseIp + i;
-                var ping = new Ping();
-                ping.Send(address, 100);
-            });
+            var pings = Enumerable.Range(1, 254)
+                .Select(i => new Ping().SendPingAsync(baseIp + i, 200))
+                .ToList();
+            Thread.Sleep(200);
         }
     }
 

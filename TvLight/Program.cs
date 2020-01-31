@@ -15,9 +15,6 @@ namespace TvLight
 {
     internal static class Program
     {
-        static IPAddress SubnetAddress { get; } = IPAddress.Parse("192.168.1.0");
-        static IPAddress SubnetMask { get; } = IPAddress.Parse("255.255.255.0");
-
         static void Main()
         {
             var db = new DeviceDb();

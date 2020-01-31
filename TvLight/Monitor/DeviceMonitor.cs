@@ -39,7 +39,7 @@ namespace TvLight.Monitor
                 return;
 
             _threadCancellationTokenSource.Cancel();
-            if (!_thread.Join(TimeSpan.FromSeconds(10)))
+            if (!_thread.Join(TimeSpan.FromSeconds(30)))
                 throw new Exception("Thread didn't terminate");
             _threadCancellationTokenSource = null;
             _thread = null;

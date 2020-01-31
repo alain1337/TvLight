@@ -21,12 +21,16 @@ namespace TvLight.Pinger
         readonly object _arpLock = new object();
         List<ArpEntry> _arpEntries;
         DateTime? _arpUpdated;
-        readonly TimeSpan _refreshAfter = TimeSpan.FromSeconds(1);
+        readonly TimeSpan _refreshAfter = TimeSpan.FromSeconds(5);
+
+        static IPAddress SubnetAddress { get; } = IPAddress.Parse("192.168.1.0");
+        static IPAddress SubnetMask { get; } = IPAddress.Parse("255.255.255.0");
 
         void CondRefresh()
         {
             if (_arpUpdated.HasValue && _arpUpdated > DateTime.Now.Add(-_refreshAfter))
                 return;
+            Arp.PingSubnet(SubnetAddress, SubnetMask);
             _arpEntries = Arp.GetAll();
             _arpUpdated = DateTime.Now;
         }
