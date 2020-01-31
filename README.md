@@ -33,11 +33,11 @@ Devices are configurable and are identified by their MAC address:
 
 You need to [setup a user name](https://developers.meethue.com/develop/get-started-2/) in your Hue Bridge and put the username into credentials.json in the same directory as the executable:
 
-```javascript
+<pre lang="javascript">
 {
-  "username": "insert-username-here"
+  "username": "<b>insert-username-here</b>"
 }
-```
+</pre>
 
 Now you can run it with `dotnet run` and check if the basics work. This also outputs your lights and you can add this to controls in your TV device like this:
 
