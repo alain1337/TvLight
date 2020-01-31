@@ -23,9 +23,11 @@ namespace TvLight
             var db = new DeviceDb();
             if (db.Devices.Count(d => d.Type == DeviceType.HueBridge) != 1)
                 throw new Exception("Exactly one Hue Bridge must be defines in devices.json");
+            foreach (var device in db.Devices)
+                device.GetStatus();
             var hue = new HueBridge(db.Devices.First(d => d.Type == DeviceType.HueBridge));
             Console.WriteLine("Bridge:");
-            Console.WriteLine($"\t{hue.Device.Name}\t{hue.Device.GetStatus()}");
+            Console.WriteLine($"\t{hue.Device.Name}\t{hue.Device.Ip.Ip}\t{hue.Device.GetStatus()}");
             if (hue.Device.Ip.Status != IpDeviceStatus.Online)
                 throw new Exception("Hue Bridge is not online");
             Console.WriteLine();
@@ -33,10 +35,10 @@ namespace TvLight
             Console.WriteLine("TVs:");
             var tvs = db.Devices.Where(d => d.Type == DeviceType.Tv).ToList();
             foreach (var tv in tvs)
-                Console.WriteLine($"\t{tv.Name}\t{tv.GetStatus()}");
+                Console.WriteLine($"\t{tv.Name}\t{tv.Ip?.Ip.ToString() ?? "n/a"}\t{tv.GetStatus()}");
             Console.WriteLine();
 
-            Console.WriteLine("Starting DeviceMonitor:");
+            Console.WriteLine("Starting DeviceMonitor, [Enter] to stop");
             var monitor = new DeviceMonitor(tvs);
             monitor.DeviceChanged += (sender, data) => { Console.WriteLine($"\t{DateTime.Now:T}\t{data.Device.Name}\t{data.PreviousStatus}\t->\t{data.CurrentStatus}"); };
             monitor.Start();
