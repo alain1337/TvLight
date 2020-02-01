@@ -24,6 +24,7 @@ namespace TvLight.Discovery
                 new ProcessStartInfo
                 {
                     FileName = "arp",
+                    Arguments = "-e",
                     RedirectStandardOutput = true
                 };
             var process = Process.Start(psi) ?? throw new Exception($"Failed to start {psi.FileName}");
@@ -34,22 +35,26 @@ namespace TvLight.Discovery
             var result = new List<ArpEntry>();
             foreach (var line in output.Split('\n').Skip(isWin ? 3 : 1))
             {
-                var fields = Regex.Split(line, @"\s+").Where(s => !String.IsNullOrWhiteSpace(s)).ToArray();
                 if (isWin)
                 {
+                    var fields = Regex.Split(line, @"\s+").Where(s => !String.IsNullOrWhiteSpace(s)).ToArray();
                     if (fields.Length < 3)
                         continue;
                     result.Add(new ArpEntry(IPAddress.Parse(fields[0]), PhysicalAddress.Parse(fields[1].ToUpper())));
                 }
+
                 {
-                    if (fields.Length < 5)
+                    var ma = BsdArpRe.Match(line);
+                    if (!ma.Success)
                         continue;
-                    result.Add(new ArpEntry(IPAddress.Parse(fields[0]), PhysicalAddress.Parse(fields[2].ToUpper())));
+                    result.Add(new ArpEntry(IPAddress.Parse(ma.Groups["ip"].Value), PhysicalAddress.Parse(ma.Groups["mac"].Value)));
                 }
             }
 
             return result;
         }
+
+        static readonly Regex BsdArpRe = new Regex(@"\((?<ip>[0-9.]+).*\s(?<mac>[0-9a-f]{2}(?::[0-9a-f]{2}){5})");
     }
 
     public class ArpEntry
