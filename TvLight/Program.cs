@@ -19,7 +19,7 @@ namespace TvLight
 
         static void Main()
         {
-            var devices = DeviceList.CreateFromFile("devices.json");
+            var devices = DeviceList<Device>.CreateFromFile("devices.json");
             if (devices.Devices.Count(d => d.Type == DeviceType.HueBridge) != 1)
                 throw new Exception("Exactly one Hue Bridge must be defines in devices.json");
             foreach (var device in devices.Devices)
@@ -44,9 +44,10 @@ namespace TvLight
             Console.WriteLine();
 
             Console.WriteLine("TVs:");
-            var tvs = devices.Devices.Where(d => d.Type == DeviceType.Tv).Cast<Tv>().ToList();
-            foreach (var tv in tvs)
-                Console.WriteLine($"\t{tv.Name,-30}\t{tv.Mac}\t{tv.GetStatus()}\t{String.Join(',', tv.Controls)}");
+            var tvs = new DeviceList<Tv>(devices.Devices.Where(d => d.Type == DeviceType.Tv).Cast<Tv>());
+            tvs.ProcessDiscovery(MacDiscovery.DiscoverOnline(SubnetAddress));
+            foreach (var tv in tvs.Devices)
+                Console.WriteLine($"\t{tv.Name,-30}\t{tv.Mac}\t{tv.OnlineStatus.Status}\t{String.Join(',', tv.Controls)}");
             Console.WriteLine();
 
             Console.WriteLine("Starting DeviceMonitor, [Enter] to stop");

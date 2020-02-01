@@ -12,6 +12,7 @@ namespace TvLight.Devices
         public string Name { get; }
         public PhysicalAddress Mac { get; }
         public IpDevice Ip { get; private set; }
+        public OnlineStatus OnlineStatus { get; } = new OnlineStatus();
 
         public Device(DeviceType type, string name, PhysicalAddress mac)
         {

@@ -15,36 +15,37 @@ namespace TvLight.Devices
 
         static readonly TimeSpan DebounceInterval = TimeSpan.FromSeconds(5);
 
-        public void SignalOnline(IPAddress ip)
+        public bool SignalOnline(IPAddress ip)
         {
             OnlineSince = DateTimeOffset.Now;
             OfflineSince = null;
             Ip = ip;
-            RefreshStatus();
+            return RefreshStatus();
         }
 
-        public void RefreshStatus()
+        public bool RefreshStatus()
         {
             OnlineStatusOnline newState = Status;
             if (!OnlineSince.HasValue && !OfflineSince.HasValue)
                 newState = OnlineStatusOnline.Unknown;
-            else if (OnlineSince.HasValue && !OfflineSince.HasValue || OnlineSince >  OfflineSince)
+            else if (OnlineSince.HasValue && !OfflineSince.HasValue || OnlineSince > OfflineSince)
                 newState = OnlineStatusOnline.Online;
             else if (OfflineSince + DebounceInterval > OnlineSince)
                 newState = OnlineStatusOnline.Offline;
 
-            // TODO: Trigger event
-            if (Status != newState)
-            {
-                Status = newState;
-            }
-        }
-    }
+            if (Status == newState)
+                return false;
 
-    public enum OnlineStatusOnline
-    {
-        Unknown,
-        Offline,
-        Online
+            // TODO: Trigger event
+            Status = newState;
+            return true;
+        }
+
+        public enum OnlineStatusOnline
+        {
+            Unknown,
+            Offline,
+            Online
+        }
     }
 }

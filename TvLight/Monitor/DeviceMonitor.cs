@@ -10,13 +10,13 @@ namespace TvLight.Monitor
 {
     public class DeviceMonitor
     {
-        Device[] Devices { get; }
+        DeviceList<Device> Devices { get; }
         IpDeviceStatus[] DeviceStatus { get; set; }
 
         public event EventHandler<DeviceChangeData> DeviceChanged;
         
 
-        public DeviceMonitor(IEnumerable<Device> devices)
+        public DeviceMonitor(DeviceList<Device> devices)
         {
             Devices = devices.ToArray();
             DeviceStatus = Devices.Select(d => d.GetStatus()).ToArray();

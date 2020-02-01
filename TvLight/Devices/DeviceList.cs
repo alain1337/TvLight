@@ -1,20 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.Json;
 using TvLight.Hue;
+using TvLight.Pinger;
 
 namespace TvLight.Devices
 {
-    public class DeviceList
+    public class DeviceList<T> where T : Device
     {
-        public List<Device> Devices { get; } = new List<Device>();
+        public List<T> Devices { get; }
 
-        public static DeviceList CreateFromFile(string filename)
+        public DeviceList(IEnumerable<T> devices)
         {
-            var dl = new DeviceList();
+            Devices = devices.ToList();
+        }
+
+        public static DeviceList<Device> CreateFromFile(string filename)
+        {
+            var dl = new DeviceList<Device>();
             var jsonBytes = File.ReadAllBytes(filename);
             using var jsonDoc = JsonDocument.Parse(jsonBytes);
             foreach (var deviceJson in jsonDoc.RootElement.GetProperty("devices").EnumerateArray())
@@ -38,8 +45,22 @@ namespace TvLight.Devices
             return dl;
         }
 
+        public bool ProcessDiscovery(IEnumerable<MacOnline> online)
+        {
+            var changes = false;
+            foreach (var on in online)
+                foreach (var device in Devices.Where(d => d.Mac.Equals(on.Mac)))
+                    if (device.OnlineStatus.SignalOnline(on.Ip))
+                        changes = true;
+            foreach (var device in Devices)
+                if (device.OnlineStatus.RefreshStatus())
+                    changes = true;
+            return changes;
+        }
+
         DeviceList()
         {
+            Devices = new List<T>();
         }
     }
 }
