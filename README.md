@@ -1,5 +1,5 @@
 # TvLight
-TvLight allows to monitor the IPs of TVs and turn on or off Hue lights when the TV is on. TvLight is intended to run all the time, ideally on a low-power device such as a Rasberry Pi.
+TvLight allows to monitor the IPs of TVs and turn on or off Hue lights when the TV is on. TvLight is intended to run all the time, ideally on a low-power device such as a Raspberry Pi.
 
 While TvLight is limited to a single subnet, it can easily and automatically handle IP changes.
 
@@ -8,6 +8,7 @@ While TvLight is limited to a single subnet, it can easily and automatically han
 * Philips Hue Bridge
 * Network connected TV
 * Any kind of Hue lamp
+* [.NET Core 3.1 Runtime](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
 ## Setting it up
 
@@ -45,7 +46,7 @@ You need to [setup a user name](https://developers.meethue.com/develop/get-start
 }
 ```
 
-Now you can run it with `dotnet run` and check if the basics work. This also outputs your lights and you can add this to controls in your TV device like this:
+Now you can run it with `dotnet run` and check if the basics work. This also outputs your groups and lights and you can add this to controls in your TV device like this:
 
 ```javascript
 {
@@ -65,7 +66,7 @@ Now you can run it with `dotnet run` and check if the basics work. This also out
       "name": "Wohnzimmer",
       "mac": "00-05-CD-25-00-81",
       "type": "Tv",
-      "controls": []
+      "controls": [ "TV Wohnzimmer" ]
     }
   ] 
 }
