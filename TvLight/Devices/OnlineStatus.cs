@@ -15,7 +15,7 @@ namespace TvLight.Devices
 
         static readonly TimeSpan DebounceInterval = TimeSpan.FromSeconds(5);
 
-        public bool SignalOnline(IPAddress ip)
+        public OnlineStatusChange SignalOnline(IPAddress ip)
         {
             OnlineSince = DateTimeOffset.Now;
             OfflineSince = null;
@@ -23,16 +23,16 @@ namespace TvLight.Devices
             return RefreshStatus();
         }
 
-        public bool SignalOffline()
+        public OnlineStatusChange SignalOffline()
         {
             OnlineSince = DateTimeOffset.Now;
             OfflineSince = DateTimeOffset.Now;
             return RefreshStatus();
         }
 
-        public bool RefreshStatus()
+        public OnlineStatusChange RefreshStatus()
         {
-            OnlineStatusOnline newState = Status;
+            var newState = Status;
             if (!OnlineSince.HasValue && !OfflineSince.HasValue)
                 newState = OnlineStatusOnline.Unknown;
             else if (OnlineSince.HasValue && !OfflineSince.HasValue || OnlineSince > OfflineSince)
@@ -41,11 +41,11 @@ namespace TvLight.Devices
                 newState = OnlineStatusOnline.Offline;
 
             if (Status == newState)
-                return false;
+                return new OnlineStatusChange(false, Status, Status);
 
-            // TODO: Trigger event
+            var change = new OnlineStatusChange(true, Status, newState);
             Status = newState;
-            return true;
+            return change;
         }
     }
 
@@ -54,5 +54,19 @@ namespace TvLight.Devices
         Unknown,
         Offline,
         Online
+    }
+
+    public class OnlineStatusChange
+    {
+        public OnlineStatusChange(bool changed, OnlineStatusOnline fromStatus, OnlineStatusOnline toStatus)
+        {
+            Changed = changed;
+            FromStatus = fromStatus;
+            ToStatus = toStatus;
+        }
+
+        public bool Changed { get; }
+        public OnlineStatusOnline FromStatus { get; }
+        public OnlineStatusOnline ToStatus { get; }
     }
 }

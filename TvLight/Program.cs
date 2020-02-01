@@ -54,10 +54,10 @@ namespace TvLight
             var monitor = new DeviceMonitor(SubnetAddress, tvs);
             monitor.DeviceChanged += (sender, data) =>
                 {
-                    Console.WriteLine($"\t{DateTime.Now:T}\t{data.Device.Name}\t{data.PreviousStatus}\t->\t{data.CurrentStatus}");
+                    Console.WriteLine($"\t{DateTime.Now:T}\t{data.Device.Name}\t{data.FromStatus}\t->\t{data.ToStatus}");
                     if (data.Device is Tv tv)
                     {
-                        switch (data.CurrentStatus)
+                        switch (data.ToStatus)
                         {
                             case OnlineStatusOnline.Online:
                                 foreach (var light in tv.Controls)

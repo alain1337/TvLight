@@ -45,28 +45,45 @@ namespace TvLight.Devices
             return dl;
         }
 
-        public bool ProcessDiscovery(IEnumerable<MacOnline> online)
+        public List<ProcessDiscoveryChange> ProcessDiscovery(IEnumerable<MacOnline> online)
         {
+            var changes = new List<ProcessDiscoveryChange>();
             var unvisitedDevices = Devices.ToList();
 
-            var changes = false;
             foreach (var on in online)
-            foreach (var device in Devices.Where(d => d.Mac.Equals(on.Mac)))
             {
-                unvisitedDevices.Remove(device);
-                if (device.OnlineStatus.SignalOnline(on.Ip))
-                    changes = true;
+                foreach (var device in Devices.Where(d => d.Mac.Equals(on.Mac)))
+                {
+                    unvisitedDevices.Remove(device);
+                    var change = device.OnlineStatus.SignalOnline(on.Ip);
+                    if (change.Changed)
+                        changes.Add(new ProcessDiscoveryChange(device, change));
+                }
             }
 
             foreach (var device in unvisitedDevices)
-                if (device.OnlineStatus.SignalOffline())
-                    changes = true;
+            {
+                var change = device.OnlineStatus.SignalOffline();
+                if (change.Changed)
+                    changes.Add(new ProcessDiscoveryChange(device, change));
+            }
+
             return changes;
         }
 
         DeviceList()
         {
             Devices = new List<Device>();
+        }
+    }
+
+    public class ProcessDiscoveryChange : OnlineStatusChange
+    {
+        public Device Device { get; }
+
+        public ProcessDiscoveryChange(Device device, OnlineStatusChange change) : base(change.Changed, change.FromStatus, change.ToStatus)
+        {
+            Device = device;
         }
     }
 }
