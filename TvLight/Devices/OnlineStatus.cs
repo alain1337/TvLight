@@ -17,7 +17,7 @@ namespace TvLight.Devices
 
         public OnlineStatusChange SignalOnline(IPAddress ip)
         {
-            OnlineSince = DateTimeOffset.Now;
+            OnlineSince ??= DateTimeOffset.Now;
             OfflineSince = null;
             Ip = ip;
             return RefreshStatus();
@@ -25,8 +25,8 @@ namespace TvLight.Devices
 
         public OnlineStatusChange SignalOffline()
         {
-            OnlineSince = DateTimeOffset.Now;
-            OfflineSince = DateTimeOffset.Now;
+            if (Status == OnlineStatusOnline.Online)
+                OfflineSince = DateTimeOffset.Now;
             return RefreshStatus();
         }
 
@@ -42,6 +42,11 @@ namespace TvLight.Devices
 
             if (Status == newState)
                 return new OnlineStatusChange(false, Status, Status);
+
+            if (newState == OnlineStatusOnline.Offline)
+                OnlineSince = null;
+            else if (newState == OnlineStatusOnline.Online) 
+                OfflineSince = null;
 
             var change = new OnlineStatusChange(true, Status, newState);
             Status = newState;
