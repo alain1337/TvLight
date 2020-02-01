@@ -15,12 +15,14 @@ namespace TvLight.Hue
 
         public void TurnOn()
         {
-            Bridge.TransactCommand(HttpMethod.Put, $"lights/{Id}/state", "{ \"on\": true }");
+            using var result = Bridge.TransactCommand(HttpMethod.Put, $"lights/{Id}/state", "{ \"on\": true }");
+            TurnedOn = true;
         }
 
         public void TurnOff()
         {
-            Bridge.TransactCommand(HttpMethod.Put, $"lights/{Id}/state", "{ \"on\": false }");
+            using var result = Bridge.TransactCommand(HttpMethod.Put, $"lights/{Id}/state", "{ \"on\": false }");
+            TurnedOn = false;
         }
 
         public Light(HueBridge bridge, JsonProperty json)

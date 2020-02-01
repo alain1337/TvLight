@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,25 +16,39 @@ namespace TvLight.Pinger
     {
         public static List<ArpEntry> GetAll()
         {
-            var psi = new ProcessStartInfo
-            {
-                FileName = "arp.exe",
-                Arguments = "-a",
-                RedirectStandardOutput = true
-            };
+            var isWin = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            var psi = isWin ?
+                new ProcessStartInfo
+                {
+                    FileName = "arp.exe",
+                    Arguments = "-a",
+                    RedirectStandardOutput = true
+                } :
+                new ProcessStartInfo
+                {
+                    FileName = "arp",
+                    RedirectStandardOutput = true
+                };
             var process = Process.Start(psi) ?? throw new Exception($"Failed to start {psi.FileName}");
             process.WaitForExit();
             if (process.ExitCode != 0)
                 throw new Exception($"{psi.FileName} returned {process.ExitCode}");
             var output = process.StandardOutput.ReadToEnd();
             var result = new List<ArpEntry>();
-            var types = new[] { "dynamic", "static" };
-            foreach (var line in output.Split('\n'))
+            foreach (var line in output.Split('\n').Skip(isWin ? 3 : 1))
             {
-                var fields = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (fields.Length < 3 || !types.Contains(fields[2]))
-                    continue;
-                result.Add(new ArpEntry(IPAddress.Parse(fields[0]), PhysicalAddress.Parse(fields[1].ToUpper()), fields[2]));
+                var fields = Regex.Split(line, @"\s+").Where(s => !String.IsNullOrWhiteSpace(s)).ToArray();
+                if (isWin)
+                {
+                    if (fields.Length < 3)
+                        continue;
+                    result.Add(new ArpEntry(IPAddress.Parse(fields[0]), PhysicalAddress.Parse(fields[1].ToUpper())));
+                }
+                {
+                    if (fields.Length < 5)
+                        continue;
+                    result.Add(new ArpEntry(IPAddress.Parse(fields[0]), PhysicalAddress.Parse(fields[2].ToUpper())));
+                }
             }
 
             return result;
@@ -41,11 +57,8 @@ namespace TvLight.Pinger
 
     public class ArpEntry : IpDevice
     {
-        public string Type { get; }
-
-        public ArpEntry(IPAddress ip, PhysicalAddress mac, string type) : base(ip, mac)
+        public ArpEntry(IPAddress ip, PhysicalAddress mac) : base(ip, mac)
         {
-            Type = type;
         }
     }
 }

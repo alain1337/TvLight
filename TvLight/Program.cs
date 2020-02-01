@@ -24,7 +24,7 @@ namespace TvLight
                 device.GetStatus();
             var hue = (HueBridge)db.Devices.First(d => d.Type == DeviceType.HueBridge);
             Console.WriteLine("Bridge:");
-            Console.WriteLine($"\t{hue.Name,-30}\t{hue.Ip.Ip}\t{hue.GetStatus()}");
+            Console.WriteLine($"\t{hue.Name,-30}\t{hue.Ip.Mac}\t{hue.Ip.Ip}\t{hue.GetStatus()}");
             if (hue.Ip.Status != IpDeviceStatus.Online)
                 throw new Exception("Hue Bridge is not online");
             Console.WriteLine();
@@ -38,7 +38,7 @@ namespace TvLight
             Console.WriteLine("TVs:");
             var tvs = db.Devices.Where(d => d.Type == DeviceType.Tv).Cast<Tv>().ToList();
             foreach (var tv in tvs)
-                Console.WriteLine($"\t{tv.Name,-30}\t{tv.Ip?.Ip.ToString() ?? "n/a"}\t{tv.GetStatus()}\t{String.Join(',', tv.Controls)}");
+                Console.WriteLine($"\t{tv.Name,-30}\t{tv.Mac}\t{tv.GetStatus()}\t{String.Join(',', tv.Controls)}");
             Console.WriteLine();
 
             Console.WriteLine("Starting DeviceMonitor, [Enter] to stop");
