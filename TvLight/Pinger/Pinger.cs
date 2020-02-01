@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -11,21 +12,14 @@ namespace TvLight.Pinger
 {
     // Code taken from https://www.justinmklam.com/posts/2018/02/ping-sweeper/
 
-    public class Pinger
+    public static class Pinger
     {
-        readonly IPAddress _subnet;
-
-        public Pinger(IPAddress subnet)
-        {
-            _subnet = subnet;
-        }
-
-        public async Task<PingResult> PingAllAsync()
+        public static async Task<PingResult> PingAllAsync(IPAddress subnet)
         {
             var tasks = new List<Task>();
 
             // NOTE: This is extremely lame but works for now...
-            var baseIp = String.Join('.', _subnet.ToString().Split('.').Take(3)) + ".";
+            var baseIp = String.Join('.', subnet.ToString().Split('.').Take(3)) + ".";
             var pr = new PingResult();
             var sw = Stopwatch.StartNew();
             for (var i = 2; i < 255 ; i++)
@@ -39,19 +33,19 @@ namespace TvLight.Pinger
             return pr;
         }
 
-        private async Task PingAndUpdateAsync(System.Net.NetworkInformation.Ping ping, string ip, PingResult pr)
+        static async Task PingAndUpdateAsync(System.Net.NetworkInformation.Ping ping, string ip, PingResult pr)
         {
             Interlocked.Increment(ref pr.IpsPinged);
             var reply = await ping.SendPingAsync(ip, 500);
             if (reply.Status == System.Net.NetworkInformation.IPStatus.Success)
-                Interlocked.Increment(ref pr.IpsSuccessful);
+                pr.OnlineIps[reply.Address] = true;
         }
     }
 
     public class PingResult
     {
+        public ConcurrentDictionary<IPAddress, bool> OnlineIps = new ConcurrentDictionary<IPAddress, bool>();
         public int IpsPinged;
-        public int IpsSuccessful;
         public TimeSpan Elapsed;
     }
 }
