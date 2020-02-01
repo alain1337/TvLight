@@ -8,7 +8,7 @@ While TvLight is limited to a single subnet, it can easily and automatically han
 * Philips Hue Bridge
 * Network connected TV
 * Any kind of Hue lamp
-* .NET Core 3.1
+* [.NET Core 3.1 Runtime](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
 ## Setting it up
 
