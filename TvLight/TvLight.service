@@ -1,0 +1,13 @@
+﻿[Unit]
+Description=Control TV Lights
+After=multi-user.target
+
+[Service]
+ExecStart=/home/pi/dotnet-arm32/dotnet /home/pi/TvLight/TvLight.dll
+WorkingDirectory=/home/pi/TvLight
+# Restart=always
+# RestartSec=10
+User=pi
+
+[Install]
+WantedBy=multi-user.target
