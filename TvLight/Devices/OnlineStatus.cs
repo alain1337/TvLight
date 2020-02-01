@@ -23,6 +23,13 @@ namespace TvLight.Devices
             return RefreshStatus();
         }
 
+        public bool SignalOffline()
+        {
+            OnlineSince = DateTimeOffset.Now;
+            OfflineSince = DateTimeOffset.Now;
+            return RefreshStatus();
+        }
+
         public bool RefreshStatus()
         {
             OnlineStatusOnline newState = Status;

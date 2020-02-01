@@ -47,13 +47,19 @@ namespace TvLight.Devices
 
         public bool ProcessDiscovery(IEnumerable<MacOnline> online)
         {
+            var unvisitedDevices = Devices.ToList();
+
             var changes = false;
             foreach (var on in online)
-                foreach (var device in Devices.Where(d => d.Mac.Equals(on.Mac)))
-                    if (device.OnlineStatus.SignalOnline(on.Ip))
-                        changes = true;
-            foreach (var device in Devices)
-                if (device.OnlineStatus.RefreshStatus())
+            foreach (var device in Devices.Where(d => d.Mac.Equals(on.Mac)))
+            {
+                unvisitedDevices.Remove(device);
+                if (device.OnlineStatus.SignalOnline(on.Ip))
+                    changes = true;
+            }
+
+            foreach (var device in unvisitedDevices)
+                if (device.OnlineStatus.SignalOffline())
                     changes = true;
             return changes;
         }
