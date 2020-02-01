@@ -65,11 +65,19 @@ namespace TvLight
                     {
                         case OnlineStatusOnline.Online:
                             foreach (var sw in tv.ControlDevices)
+                            {
                                 sw.TurnOn();
+                                Console.WriteLine($"\t{DateTime.Now:T}\t{sw.Name} turned on");
+                            }
+
                             break;
                         case OnlineStatusOnline.Offline:
                             foreach (var sw in tv.ControlDevices)
+                            {
                                 sw.TurnOff();
+                                Console.WriteLine($"\t{DateTime.Now:T}\t{sw.Name} turned off");
+                            }
+
                             break;
                     }
                 };

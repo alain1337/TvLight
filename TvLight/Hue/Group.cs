@@ -30,7 +30,7 @@ namespace TvLight.Hue
         void SetState(bool on)
         {
             using var result = Bridge.TransactCommand(HttpMethod.Put, $"groups/{Id}/action", "{ \"on\": " + on.ToString().ToLower() + " }");
-            Console.WriteLine(result.RootElement.ToString());
+            // Console.WriteLine(result.RootElement.ToString());
         }
 
         public Group(HueBridge bridge, JsonProperty json)
