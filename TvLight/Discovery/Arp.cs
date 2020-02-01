@@ -24,7 +24,7 @@ namespace TvLight.Discovery
                 new ProcessStartInfo
                 {
                     FileName = "arp",
-                    Arguments = "-e",
+                    Arguments = "-a",
                     RedirectStandardOutput = true
                 };
             var process = Process.Start(psi) ?? throw new Exception($"Failed to start {psi.FileName}");
@@ -47,7 +47,7 @@ namespace TvLight.Discovery
                     var ma = BsdArpRe.Match(line);
                     if (!ma.Success)
                         continue;
-                    result.Add(new ArpEntry(IPAddress.Parse(ma.Groups["ip"].Value), PhysicalAddress.Parse(ma.Groups["mac"].Value)));
+                    result.Add(new ArpEntry(IPAddress.Parse(ma.Groups["ip"].Value), PhysicalAddress.Parse(ma.Groups["mac"].Value.ToUpper().Replace(':', '-'))));
                 }
             }
 
