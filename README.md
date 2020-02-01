@@ -3,6 +3,12 @@ TvLight allows to monitor the IPs of TVs and turn on or off Hue lights when the 
 
 While TvLight is limited to a single subnet, it can easily and automatically handle IP changes.
 
+## Requirements
+
+* Philips Hue Bridge
+* Network connected TV
+* Any kind of Hue lamp
+
 ## Setting it up
 
 Devices are configurable and are identified by their MAC address:
