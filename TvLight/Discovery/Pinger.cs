@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TvLight.Pinger
+namespace TvLight.Discovery
 {
     // Code taken from https://www.justinmklam.com/posts/2018/02/ping-sweeper/
 
@@ -44,7 +43,7 @@ namespace TvLight.Pinger
 
     public class PingResult
     {
-        public ConcurrentDictionary<IPAddress, bool> OnlineIps = new ConcurrentDictionary<IPAddress, bool>();
+        public readonly ConcurrentDictionary<IPAddress, bool> OnlineIps = new ConcurrentDictionary<IPAddress, bool>();
         public int IpsPinged;
         public TimeSpan Elapsed;
     }

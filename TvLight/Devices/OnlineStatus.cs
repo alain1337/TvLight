@@ -40,12 +40,12 @@ namespace TvLight.Devices
             Status = newState;
             return true;
         }
+    }
 
-        public enum OnlineStatusOnline
-        {
-            Unknown,
-            Offline,
-            Online
-        }
+    public enum OnlineStatusOnline
+    {
+        Unknown,
+        Offline,
+        Online
     }
 }

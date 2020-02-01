@@ -5,7 +5,6 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.Json;
 using TvLight.Devices;
-using TvLight.Pinger;
 
 namespace TvLight.Hue
 {
@@ -52,6 +51,6 @@ namespace TvLight.Hue
 
         readonly HttpClient _httpClient;
 
-        string ApiRoot => $"https://{Ip.Ip}/api/{Credentials.Username}/";
+        string ApiRoot => $"https://{OnlineStatus.Ip}/api/{Credentials.Username}/";
     }
 }

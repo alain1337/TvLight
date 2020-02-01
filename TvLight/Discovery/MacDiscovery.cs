@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Text;
 
-namespace TvLight.Pinger
+namespace TvLight.Discovery
 {
     public static class MacDiscovery
     {
@@ -13,9 +11,9 @@ namespace TvLight.Pinger
         {
             var ips = Pinger.PingAllAsync(subnet).Result;
             var arp = Arp.GetAll();
-            return ips.OnlineIps.Keys
-                .Where(ip => arp.Exists(ae => Equals(ae.Ip, ip)))
-                .Select(ip => new MacOnline(arp.First(ae => Equals(ae.Ip, ip)).Mac, ip))
+            return arp
+                .Where(ae => ips.OnlineIps.ContainsKey(ae.Ip))
+                .Select(ae => new MacOnline(ae.Mac, ips.OnlineIps.First(ip => Equals(ae.Ip, ip.Key)).Key))
                 .ToList();
         }
     }

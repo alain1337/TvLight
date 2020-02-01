@@ -5,23 +5,23 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.Json;
+using TvLight.Discovery;
 using TvLight.Hue;
-using TvLight.Pinger;
 
 namespace TvLight.Devices
 {
-    public class DeviceList<T> where T : Device
+    public class DeviceList
     {
-        public List<T> Devices { get; }
+        public List<Device> Devices { get; }
 
-        public DeviceList(IEnumerable<T> devices)
+        public DeviceList(IEnumerable<Device> devices)
         {
             Devices = devices.ToList();
         }
 
-        public static DeviceList<Device> CreateFromFile(string filename)
+        public static DeviceList CreateFromFile(string filename)
         {
-            var dl = new DeviceList<Device>();
+            var dl = new DeviceList();
             var jsonBytes = File.ReadAllBytes(filename);
             using var jsonDoc = JsonDocument.Parse(jsonBytes);
             foreach (var deviceJson in jsonDoc.RootElement.GetProperty("devices").EnumerateArray())
@@ -60,7 +60,7 @@ namespace TvLight.Devices
 
         DeviceList()
         {
-            Devices = new List<T>();
+            Devices = new List<Device>();
         }
     }
 }

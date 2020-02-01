@@ -5,12 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace TvLight.Pinger
+namespace TvLight.Discovery
 {
     public static class Arp
     {
@@ -55,10 +52,15 @@ namespace TvLight.Pinger
         }
     }
 
-    public class ArpEntry : IpDevice
+    public class ArpEntry
     {
-        public ArpEntry(IPAddress ip, PhysicalAddress mac) : base(ip, mac)
+        public IPAddress Ip { get; }
+        public PhysicalAddress Mac { get; }
+
+        public ArpEntry(IPAddress ip, PhysicalAddress mac)
         {
+            Ip = ip;
+            Mac = mac;
         }
     }
 }

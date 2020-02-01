@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using TvLight.Devices;
-using TvLight.Pinger;
+using TvLight.Discovery;
 
 namespace TvLight.Monitor
 {
     public class DeviceMonitor
     {
-        DeviceList<Device> Devices { get; }
-        IpDeviceStatus[] DeviceStatus { get; set; }
+        public DeviceList Triggers { get; }
+        public IPAddress SubnetAddress { get; }
 
         public event EventHandler<DeviceChangeData> DeviceChanged;
-        
 
-        public DeviceMonitor(DeviceList<Device> devices)
+        public DeviceMonitor(IPAddress subnetAddress, DeviceList triggers)
         {
-            Devices = devices.ToArray();
-            DeviceStatus = Devices.Select(d => d.GetStatus()).ToArray();
+            SubnetAddress = subnetAddress;
+            Triggers = triggers;
         }
 
         public void Start()
@@ -49,11 +49,18 @@ namespace TvLight.Monitor
         {
             while (!cts.IsCancellationRequested)
             {
-                var newStatus = Devices.Select(d => d.GetStatus()).ToArray();
-                for (int i=0; i < newStatus.Length; i++)
-                    if (DeviceStatus[i] != newStatus[i])
-                        DeviceChanged?.Invoke(this, new DeviceChangeData(Devices[i], DeviceStatus[i], newStatus[i]));
-                DeviceStatus = newStatus;
+                // Capture everything to avoid treading issues
+                var devices = Triggers.Devices.ToArray();
+                var currentStatus = Triggers.Devices.Select(d => d.OnlineStatus.Status).ToArray();
+                var online = MacDiscovery.DiscoverOnline(SubnetAddress);
+                for (int i = 0; i < devices.Length; i++)
+                {
+                    var on = online.FirstOrDefault(mo => mo.Mac.Equals(devices[i].Mac));
+                    if (on == null)
+                        continue;
+                    if (devices[i].OnlineStatus.SignalOnline(on.Ip))
+                        DeviceChanged?.Invoke(this, new DeviceChangeData(devices[i], currentStatus[i], devices[i].OnlineStatus.Status));
+                }
                 cts.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
             }
         }
@@ -61,7 +68,7 @@ namespace TvLight.Monitor
 
     public class DeviceChangeData
     {
-        public DeviceChangeData(Device device, IpDeviceStatus previousStatus, IpDeviceStatus currentStatus)
+        public DeviceChangeData(Device device, OnlineStatusOnline previousStatus, OnlineStatusOnline currentStatus)
         {
             Device = device;
             PreviousStatus = previousStatus;
@@ -69,7 +76,7 @@ namespace TvLight.Monitor
         }
 
         public Device Device { get; }
-        public IpDeviceStatus PreviousStatus { get; }
-        public IpDeviceStatus CurrentStatus { get; }
+        public OnlineStatusOnline PreviousStatus { get; }
+        public OnlineStatusOnline CurrentStatus { get; }
     }
 }

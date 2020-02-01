@@ -7,8 +7,8 @@ using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using TvLight.Classes;
 using TvLight.Devices;
+using TvLight.Discovery;
 using TvLight.Hue;
-using TvLight.Pinger;
 using TvLight.Monitor;
 
 namespace TvLight
@@ -19,15 +19,15 @@ namespace TvLight
 
         static void Main()
         {
-            var devices = DeviceList<Device>.CreateFromFile("devices.json");
+            var devices = DeviceList.CreateFromFile("devices.json");
             if (devices.Devices.Count(d => d.Type == DeviceType.HueBridge) != 1)
                 throw new Exception("Exactly one Hue Bridge must be defines in devices.json");
-            foreach (var device in devices.Devices)
-                device.GetStatus();
+            devices.ProcessDiscovery(MacDiscovery.DiscoverOnline(SubnetAddress));
+
             var hue = (HueBridge)devices.Devices.First(d => d.Type == DeviceType.HueBridge);
             Console.WriteLine("Bridge:");
-            Console.WriteLine($"\t{hue.Name,-30}\t{hue.Ip.Mac}\t{hue.Ip.Ip}\t{hue.GetStatus()}");
-            if (hue.Ip.Status != IpDeviceStatus.Online)
+            Console.WriteLine($"\t{hue.Name,-30}\t{hue.Mac}\t{hue.OnlineStatus.Ip}\t{hue.OnlineStatus.Status}");
+            if (hue.OnlineStatus.Status != OnlineStatusOnline.Online)
                 throw new Exception("Hue Bridge is not online");
             Console.WriteLine();
 
@@ -44,14 +44,14 @@ namespace TvLight
             Console.WriteLine();
 
             Console.WriteLine("TVs:");
-            var tvs = new DeviceList<Tv>(devices.Devices.Where(d => d.Type == DeviceType.Tv).Cast<Tv>());
+            var tvs = new DeviceList(devices.Devices.Where(d => d.Type == DeviceType.Tv));
             tvs.ProcessDiscovery(MacDiscovery.DiscoverOnline(SubnetAddress));
-            foreach (var tv in tvs.Devices)
+            foreach (var tv in tvs.Devices.Cast<Tv>())
                 Console.WriteLine($"\t{tv.Name,-30}\t{tv.Mac}\t{tv.OnlineStatus.Status}\t{String.Join(',', tv.Controls)}");
             Console.WriteLine();
 
-            Console.WriteLine("Starting DeviceMonitor, [Enter] to stop");
-            var monitor = new DeviceMonitor(tvs);
+            Console.WriteLine("DeviceMonitor started, [Enter] to stop");
+            var monitor = new DeviceMonitor(SubnetAddress, tvs);
             monitor.DeviceChanged += (sender, data) =>
                 {
                     Console.WriteLine($"\t{DateTime.Now:T}\t{data.Device.Name}\t{data.PreviousStatus}\t->\t{data.CurrentStatus}");
@@ -59,11 +59,11 @@ namespace TvLight
                     {
                         switch (data.CurrentStatus)
                         {
-                            case IpDeviceStatus.Online:
+                            case OnlineStatusOnline.Online:
                                 foreach (var light in tv.Controls)
                                     groups.FirstOrDefault(l => l.Name == light)?.TurnOn();
                                 break;
-                            case IpDeviceStatus.Offline:
+                            case OnlineStatusOnline.Offline:
                                 foreach (var light in tv.Controls)
                                     groups.FirstOrDefault(l => l.Name == light)?.TurnOff();
                                 break;
