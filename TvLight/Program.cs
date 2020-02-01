@@ -15,14 +15,16 @@ namespace TvLight
 {
     internal static class Program
     {
+        static IPAddress SubnetAddress { get; } = IPAddress.Parse("192.168.1.0");
+
         static void Main()
         {
-            var db = new DeviceDb();
-            if (db.Devices.Count(d => d.Type == DeviceType.HueBridge) != 1)
+            var devices = DeviceList.CreateFromFile("devices.json");
+            if (devices.Devices.Count(d => d.Type == DeviceType.HueBridge) != 1)
                 throw new Exception("Exactly one Hue Bridge must be defines in devices.json");
-            foreach (var device in db.Devices)
+            foreach (var device in devices.Devices)
                 device.GetStatus();
-            var hue = (HueBridge)db.Devices.First(d => d.Type == DeviceType.HueBridge);
+            var hue = (HueBridge)devices.Devices.First(d => d.Type == DeviceType.HueBridge);
             Console.WriteLine("Bridge:");
             Console.WriteLine($"\t{hue.Name,-30}\t{hue.Ip.Mac}\t{hue.Ip.Ip}\t{hue.GetStatus()}");
             if (hue.Ip.Status != IpDeviceStatus.Online)
@@ -35,8 +37,14 @@ namespace TvLight
                 Console.WriteLine($"\t{light.Name,-30}\t{light.TurnedOn}");
             Console.WriteLine();
 
+            var groups = hue.GetGroups();
+            Console.WriteLine("Groups:");
+            foreach (var grp in groups)
+                Console.WriteLine($"\t{grp.Name,-30}\t{grp.TurnedOn}");
+            Console.WriteLine();
+
             Console.WriteLine("TVs:");
-            var tvs = db.Devices.Where(d => d.Type == DeviceType.Tv).Cast<Tv>().ToList();
+            var tvs = devices.Devices.Where(d => d.Type == DeviceType.Tv).Cast<Tv>().ToList();
             foreach (var tv in tvs)
                 Console.WriteLine($"\t{tv.Name,-30}\t{tv.Mac}\t{tv.GetStatus()}\t{String.Join(',', tv.Controls)}");
             Console.WriteLine();
@@ -52,11 +60,11 @@ namespace TvLight
                         {
                             case IpDeviceStatus.Online:
                                 foreach (var light in tv.Controls)
-                                    lights.FirstOrDefault(l => l.Name == light)?.TurnOn();
+                                    groups.FirstOrDefault(l => l.Name == light)?.TurnOn();
                                 break;
                             case IpDeviceStatus.Offline:
                                 foreach (var light in tv.Controls)
-                                    lights.FirstOrDefault(l => l.Name == light)?.TurnOff();
+                                    groups.FirstOrDefault(l => l.Name == light)?.TurnOff();
                                 break;
                         }
                     }

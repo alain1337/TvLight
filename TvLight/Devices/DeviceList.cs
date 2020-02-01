@@ -8,13 +8,14 @@ using TvLight.Hue;
 
 namespace TvLight.Devices
 {
-    public class DeviceDb
+    public class DeviceList
     {
         public List<Device> Devices { get; } = new List<Device>();
 
-        public DeviceDb()
+        public static DeviceList CreateFromFile(string filename)
         {
-            var jsonBytes = File.ReadAllBytes("devices.json");
+            var dl = new DeviceList();
+            var jsonBytes = File.ReadAllBytes(filename);
             using var jsonDoc = JsonDocument.Parse(jsonBytes);
             foreach (var deviceJson in jsonDoc.RootElement.GetProperty("devices").EnumerateArray())
             {
@@ -24,15 +25,21 @@ namespace TvLight.Devices
                 switch (type)
                 {
                     case "HueBridge":
-                        Devices.Add(new HueBridge(name, mac));
+                        dl.Devices.Add(new HueBridge(name, mac));
                         break;
                     case "Tv":
-                        Devices.Add(new Tv(name, mac, deviceJson));
+                        dl.Devices.Add(new Tv(name, mac, deviceJson));
                         break;
                     default:
                         throw new Exception("Unknown device type: " + type);
                 }
             }
+
+            return dl;
+        }
+
+        DeviceList()
+        {
         }
     }
 }

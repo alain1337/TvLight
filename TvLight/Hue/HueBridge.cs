@@ -28,6 +28,15 @@ namespace TvLight.Hue
             return lights;
         }
 
+        public List<Group> GetGroups()
+        {
+            var doc = TransactCommand(HttpMethod.Get, "groups");
+            var groups = new List<Group>();
+            foreach (var light in doc.RootElement.EnumerateObject())
+                groups.Add(new Group(this, light));
+            return groups;
+        }
+
         internal JsonDocument TransactCommand(HttpMethod method, string url, string bodyJson = null)
         {
             var requestUri = ApiRoot + url;

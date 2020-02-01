@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace TvLight.Hue
 {
-    public class Light : ISwitchable
+    public class Group : ISwitchable
     {
         public HueBridge Bridge { get; }
         public string Id { get; }
@@ -15,22 +15,22 @@ namespace TvLight.Hue
 
         public void TurnOn()
         {
-            using var result = Bridge.TransactCommand(HttpMethod.Put, $"lights/{Id}/state", "{ \"on\": true }");
+            using var result = Bridge.TransactCommand(HttpMethod.Put, $"groups/{Id}/action", "{ \"on\": true }");
             TurnedOn = true;
         }
 
         public void TurnOff()
         {
-            using var result = Bridge.TransactCommand(HttpMethod.Put, $"lights/{Id}/state", "{ \"on\": false }");
+            using var result = Bridge.TransactCommand(HttpMethod.Put, $"groups/{Id}/action", "{ \"on\": false }");
             TurnedOn = false;
         }
 
-        public Light(HueBridge bridge, JsonProperty json)
+        public Group(HueBridge bridge, JsonProperty json)
         {
             Id = json.Name;
             Bridge = bridge;
             Name = json.Value.GetProperty("name").GetString();
-            TurnedOn = json.Value.GetProperty("state").GetProperty("on").GetBoolean();
+            TurnedOn = json.Value.GetProperty("state").GetProperty("all_on").GetBoolean();
         }
     }
 }
