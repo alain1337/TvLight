@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -8,6 +9,7 @@ using TvLight.Devices;
 
 namespace TvLight.Hue
 {
+    [DebuggerDisplay("HueBridge {Name}")]
     public class HueBridge : Device
     {
         public HueBridge(string name, PhysicalAddress mac) : base(DeviceType.HueBridge, name, mac)

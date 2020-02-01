@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Text;
 
 namespace TvLight.Devices
 {
+    [DebuggerDisplay("{Name}")]
     public class Device
     {
         public DeviceType Type { get; }

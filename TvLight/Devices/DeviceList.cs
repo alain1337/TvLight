@@ -71,6 +71,12 @@ namespace TvLight.Devices
             return changes;
         }
 
+        public void UpdateDevices(List<ISwitchable> switchables)
+        {
+            foreach (var device in Devices)
+                (device as Tv)?.UpdateControls(switchables);
+        }
+
         DeviceList()
         {
             Devices = new List<Device>();

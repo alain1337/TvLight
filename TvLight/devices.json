@@ -9,13 +9,13 @@
       "name": "Schlafzimmer",
       "mac": "20-3D-BD-F0-DC-60",
       "type": "Tv",
-      "controls": [ "TV Schlafzimmer Links", "TV Schlafzimmer Rechts" ]
+      "controls": [ "TV Schlafzimmer" ]
     },
     {
       "name": "Wohnzimmer",
       "mac": "00-05-CD-25-00-81",
       "type": "Tv",
-      "controls": []
+      "controls": [ "TV Wohnzimmer" ]
     }
   ] 
 }

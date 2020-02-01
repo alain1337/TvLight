@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 
 namespace TvLight.Hue
 {
+    [DebuggerDisplay("Group {Name} {TurnedOn}")]
     public class Group : ISwitchable
     {
         public HueBridge Bridge { get; }
@@ -15,14 +17,20 @@ namespace TvLight.Hue
 
         public void TurnOn()
         {
-            using var result = Bridge.TransactCommand(HttpMethod.Put, $"groups/{Id}/action", "{ \"on\": true }");
+            SetState(true);
             TurnedOn = true;
         }
 
         public void TurnOff()
         {
-            using var result = Bridge.TransactCommand(HttpMethod.Put, $"groups/{Id}/action", "{ \"on\": false }");
+            SetState(false);
             TurnedOn = false;
+        }
+
+        void SetState(bool on)
+        {
+            using var result = Bridge.TransactCommand(HttpMethod.Put, $"groups/{Id}/action", "{ \"on\": " + on.ToString().ToLower() + " }");
+            Console.WriteLine(result.RootElement.ToString());
         }
 
         public Group(HueBridge bridge, JsonProperty json)

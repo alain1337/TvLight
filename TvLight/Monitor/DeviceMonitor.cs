@@ -53,7 +53,7 @@ namespace TvLight.Monitor
                 foreach (var change in changes)
                     DeviceChanged?.Invoke(this, change);
 
-                cts.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(5));
+                cts.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(2));
             }
         }
     }

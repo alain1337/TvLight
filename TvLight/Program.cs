@@ -43,11 +43,14 @@ namespace TvLight
                 Console.WriteLine($"\t{grp.Name,-30}\t{grp.TurnedOn}");
             Console.WriteLine();
 
+            var switchable = groups.Concat<ISwitchable>(lights).ToList();
+            devices.UpdateDevices(switchable);
+
             Console.WriteLine("TVs:");
             var tvs = new DeviceList(devices.Devices.Where(d => d.Type == DeviceType.Tv));
             tvs.ProcessDiscovery(MacDiscovery.DiscoverOnline(SubnetAddress));
             foreach (var tv in tvs.Devices.Cast<Tv>())
-                Console.WriteLine($"\t{tv.Name,-30}\t{tv.Mac}\t{tv.OnlineStatus.Status}\t{String.Join(',', tv.Controls)}");
+                Console.WriteLine($"\t{tv.Name,-30}\t{tv.Mac}\t{tv.OnlineStatus.Status}\t{String.Join(',', tv.ControlNames)}");
             Console.WriteLine();
 
             Console.WriteLine("DeviceMonitor started, [Enter] to stop");
@@ -55,19 +58,19 @@ namespace TvLight
             monitor.DeviceChanged += (sender, data) =>
                 {
                     Console.WriteLine($"\t{DateTime.Now:T}\t{data.Device.Name}\t{data.FromStatus}\t->\t{data.ToStatus}");
-                    if (data.Device is Tv tv)
+                    if (!(data.Device is Tv tv))
+                        return;
+
+                    switch (data.ToStatus)
                     {
-                        switch (data.ToStatus)
-                        {
-                            case OnlineStatusOnline.Online:
-                                foreach (var light in tv.Controls)
-                                    groups.FirstOrDefault(l => l.Name == light)?.TurnOn();
-                                break;
-                            case OnlineStatusOnline.Offline:
-                                foreach (var light in tv.Controls)
-                                    groups.FirstOrDefault(l => l.Name == light)?.TurnOff();
-                                break;
-                        }
+                        case OnlineStatusOnline.Online:
+                            foreach (var sw in tv.ControlDevices)
+                                sw.TurnOn();
+                            break;
+                        case OnlineStatusOnline.Offline:
+                            foreach (var sw in tv.ControlDevices)
+                                sw.TurnOff();
+                            break;
                     }
                 };
             monitor.Start();
