@@ -36,7 +36,7 @@ namespace TvLight.Devices
                 newState = OnlineStatusOnline.Unknown;
             else if (OnlineLast.HasValue && !OfflineSince.HasValue || OnlineLast > OfflineSince)
                 newState = OnlineStatusOnline.Online;
-            else if (OfflineSince + DebounceInterval > DateTimeOffset.Now)
+            else if (OfflineSince + DebounceInterval < DateTimeOffset.Now)
                 newState = OnlineStatusOnline.Offline;
 
             if (Status == newState)
