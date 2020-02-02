@@ -1,3 +1,5 @@
+![.NET Core](https://github.com/alain1337/TvLight/workflows/.NET%20Core/badge.svg)
+
 # TvLight
 TvLight allows to monitor the IPs of TVs and turn on or off Hue lights when the TV is on. TvLight is intended to run all the time, ideally on a low-power device such as a Raspberry Pi.
 
