@@ -25,7 +25,8 @@ namespace TvLight.Devices
 
         public OnlineStatusChange SignalOffline()
         {
-            OfflineSince = DateTimeOffset.Now;
+            if (OnlineLast.HasValue)
+                OfflineSince ??= DateTimeOffset.Now;
             return RefreshStatus();
         }
 
