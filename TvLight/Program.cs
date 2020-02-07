@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Threading;
 using System.Threading.Tasks;
 using TvLight.Classes;
 using TvLight.Devices;
@@ -53,7 +54,6 @@ namespace TvLight
                 Console.WriteLine($"\t{tv.Name,-30}\t{tv.Mac}\t{tv.OnlineStatus.Status}\t{String.Join(',', tv.ControlNames)}");
             Console.WriteLine();
 
-            Console.WriteLine("DeviceMonitor started, [Enter] to stop");
             var monitor = new DeviceMonitor(SubnetAddress, tvs);
             monitor.DeviceChanged += (sender, data) =>
                 {
@@ -83,9 +83,17 @@ namespace TvLight
                 };
             monitor.Start();
 
-            Console.ReadLine();
-            Console.WriteLine("Stopping DeviceMonitor");
+            var waitEvent = new ManualResetEvent(false);
+            Console.CancelKeyPress += (sender, args) => 
+            { 
+                waitEvent.Set();
+                args.Cancel = true;
+            };
+
+            Console.WriteLine("DeviceMonitor started, Ctrl-C to stop");
+            waitEvent.WaitOne();
             monitor.Stop();
+            Console.WriteLine("DeviceMonitor stopped");
         }
     }
 }
