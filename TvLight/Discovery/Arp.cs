@@ -27,7 +27,7 @@ namespace TvLight.Discovery
                     Arguments = "-a",
                     RedirectStandardOutput = true
                 };
-            var process = Process.Start(psi) ?? throw new Exception($"Failed to start {psi.FileName}");
+            using var process = Process.Start(psi) ?? throw new Exception($"Failed to start {psi.FileName}");
             process.WaitForExit();
             if (process.ExitCode != 0)
                 throw new Exception($"{psi.FileName} returned {process.ExitCode}");

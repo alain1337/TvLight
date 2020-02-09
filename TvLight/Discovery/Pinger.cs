@@ -23,8 +23,7 @@ namespace TvLight.Discovery
             var sw = Stopwatch.StartNew();
             for (var i = 2; i < 255 ; i++)
             {
-                var p = new System.Net.NetworkInformation.Ping();
-                var task = PingAndUpdateAsync(p, baseIp + i, pr);
+                var task = PingAndUpdateAsync(baseIp + i, pr);
                 tasks.Add(task);
             }
             await Task.WhenAll(tasks).ContinueWith(t => { pr.Elapsed = sw.Elapsed; });
@@ -32,8 +31,9 @@ namespace TvLight.Discovery
             return pr;
         }
 
-        static async Task PingAndUpdateAsync(System.Net.NetworkInformation.Ping ping, string ip, PingResult pr)
+        static async Task PingAndUpdateAsync(string ip, PingResult pr)
         {
+            using var ping = new System.Net.NetworkInformation.Ping();
             Interlocked.Increment(ref pr.IpsPinged);
             var reply = await ping.SendPingAsync(ip, 500);
             if (reply.Status == System.Net.NetworkInformation.IPStatus.Success)
