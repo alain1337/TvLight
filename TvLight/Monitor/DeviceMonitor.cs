@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using TvLight.Devices;
 using TvLight.Discovery;
+using TvLight.Discovery.PingAndArp;
 
 namespace TvLight.Monitor
 {
@@ -13,12 +14,14 @@ namespace TvLight.Monitor
     {
         public DeviceList Triggers { get; }
         public IPAddress SubnetAddress { get; }
+        public IScanner Scanner { get; }
 
         public event EventHandler<ProcessDiscoveryChange> DeviceChanged;
 
-        public DeviceMonitor(IPAddress subnetAddress, DeviceList triggers)
+        public DeviceMonitor(IPAddress subnet, IScanner scanner, DeviceList triggers)
         {
-            SubnetAddress = subnetAddress;
+            SubnetAddress = subnet;
+            Scanner = scanner;
             Triggers = triggers;
         }
 
@@ -49,11 +52,11 @@ namespace TvLight.Monitor
         {
             while (!cts.IsCancellationRequested)
             {
-                var changes = Triggers.ProcessDiscovery(MacDiscovery.DiscoverOnline(SubnetAddress));
+                var changes = Triggers.ProcessDiscovery(Scanner.Scan(SubnetAddress).Online);
                 foreach (var change in changes)
                     DeviceChanged?.Invoke(this, change);
 
-                cts.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(2));
+                cts.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(10));
             }
         }
     }

@@ -45,7 +45,7 @@ namespace TvLight.Devices
             return dl;
         }
 
-        public List<ProcessDiscoveryChange> ProcessDiscovery(IEnumerable<MacOnline> online)
+        public List<ProcessDiscoveryChange> ProcessDiscovery(IEnumerable<IpAndMac> online)
         {
             var changes = new List<ProcessDiscoveryChange>();
             var unvisitedDevices = Devices.ToList();

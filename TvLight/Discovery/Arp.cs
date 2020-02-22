@@ -11,7 +11,7 @@ namespace TvLight.Discovery
 {
     public static class Arp
     {
-        public static List<ArpEntry> GetAll()
+        public static List<IpAndMac> GetAll()
         {
             var isWin = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             var psi = isWin ?
@@ -32,7 +32,7 @@ namespace TvLight.Discovery
             if (process.ExitCode != 0)
                 throw new Exception($"{psi.FileName} returned {process.ExitCode}");
             var output = process.StandardOutput.ReadToEnd();
-            var result = new List<ArpEntry>();
+            var result = new List<IpAndMac>();
             foreach (var line in output.Split('\n').Skip(isWin ? 3 : 1))
             {
                 if (isWin)
@@ -40,14 +40,14 @@ namespace TvLight.Discovery
                     var fields = Regex.Split(line, @"\s+").Where(s => !String.IsNullOrWhiteSpace(s)).ToArray();
                     if (fields.Length < 3)
                         continue;
-                    result.Add(new ArpEntry(IPAddress.Parse(fields[0]), PhysicalAddress.Parse(fields[1].ToUpper())));
+                    result.Add(new IpAndMac(IPAddress.Parse(fields[0]), PhysicalAddress.Parse(fields[1].ToUpper())));
                 }
 
                 {
                     var ma = BsdArpRe.Match(line);
                     if (!ma.Success)
                         continue;
-                    result.Add(new ArpEntry(IPAddress.Parse(ma.Groups["ip"].Value), PhysicalAddress.Parse(ma.Groups["mac"].Value.ToUpper().Replace(':', '-'))));
+                    result.Add(new IpAndMac(IPAddress.Parse(ma.Groups["ip"].Value), PhysicalAddress.Parse(ma.Groups["mac"].Value.ToUpper().Replace(':', '-'))));
                 }
             }
 
@@ -55,17 +55,5 @@ namespace TvLight.Discovery
         }
 
         static readonly Regex BsdArpRe = new Regex(@"\((?<ip>[0-9.]+).*\s(?<mac>[0-9a-f]{2}(?::[0-9a-f]{2}){5})");
-    }
-
-    public class ArpEntry
-    {
-        public IPAddress Ip { get; }
-        public PhysicalAddress Mac { get; }
-
-        public ArpEntry(IPAddress ip, PhysicalAddress mac)
-        {
-            Ip = ip;
-            Mac = mac;
-        }
     }
 }
