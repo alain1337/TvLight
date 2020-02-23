@@ -51,6 +51,9 @@ namespace TvLight.Discovery.NMap
                     entry.Mac = PhysicalAddress.Parse(ma.Groups["mac"].Value.ToUpper().Replace(':', '-'));
             }
 
+            if (entry?.Mac != null)
+                result.Online.Add(entry);
+
             return result;
             */
 
